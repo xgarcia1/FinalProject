@@ -63,4 +63,24 @@ if uploaded_file is not None:
                         ax.set_title(f"{y_column} vs {x_column} (Bar Chart)")
 
                     ax.set_xlabel(x_column)
-                    ax.set_ylabel(y_column
+                    ax.set_ylabel(y_column)
+                    st.pyplot(fig)
+        else:
+            # For Pie Chart
+            if data[x_column].nunique() <= 10:  # Limit to 10 unique categories
+                fig, ax = plt.subplots()
+                ax.pie(
+                    data[y_column],
+                    labels=data[x_column],
+                    autopct='%1.1f%%',
+                    startangle=90,
+                )
+                ax.set_title(f"{y_column} (Pie Chart)")
+                st.pyplot(fig)
+            else:
+                st.error("Pie chart requires fewer than 10 unique categories in the X-axis.")
+
+    except Exception as e:
+        st.error(f"An error occurred while processing the file: {e}")
+else:
+    st.info("Please upload a CSV file to get started.")
