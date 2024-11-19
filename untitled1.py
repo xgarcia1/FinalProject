@@ -21,13 +21,24 @@ if uploaded_file is not None:
             except Exception:
                 continue  # Ignore columns that cannot be converted
 
+        # Convert all columns to numeric where applicable
+        numeric_columns = []
+        for col in data.columns:
+            if not pd.api.types.is_numeric_dtype(data[col]):
+                try:
+                    data[col] = pd.to_numeric(data[col], errors='coerce')  # Convert to numeric, set invalid to NaN
+                except Exception:
+                    continue
+            if pd.api.types.is_numeric_dtype(data[col]):
+                numeric_columns.append(col)
+
         st.write("### Data Preview")
         st.dataframe(data)
 
         # Dropdown for selecting columns
         columns = data.columns.tolist()
         x_column = st.selectbox("Select X-axis column", columns)
-        y_column = st.selectbox("Select Y-axis column", columns)
+        y_column = st.selectbox("Select Y-axis column", numeric_columns)
 
         # Dropdown for graph type
         graph_type = st.selectbox(
