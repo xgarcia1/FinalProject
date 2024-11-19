@@ -14,11 +14,11 @@ if uploaded_file is not None:
         data = pd.read_csv(uploaded_file)
         data.columns = data.columns.str.strip()  # Remove extra spaces in column names
 
-        # Check for datetime column and convert it if needed
+        # Handle datetime conversion
         for col in data.columns:
             try:
-                data[col] = pd.to_datetime(data[col])
-            except (ValueError, TypeError):
+                data[col] = pd.to_datetime(data[col], errors='coerce')  # Convert to datetime, set invalid to NaT
+            except Exception:
                 continue  # Ignore columns that cannot be converted
 
         st.write("### Data Preview")
@@ -38,6 +38,8 @@ if uploaded_file is not None:
         # Validate selected columns
         if graph_type != "Pie":
             if pd.api.types.is_datetime64_any_dtype(data[x_column]):
+                # Drop rows with NaT in the datetime column
+                data = data.dropna(subset=[x_column])
                 # Convert datetime to a numeric format for plotting
                 data['numeric_x'] = data[x_column].map(lambda x: x.timestamp())
                 x_column = 'numeric_x'
